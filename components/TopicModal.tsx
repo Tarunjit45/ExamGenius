@@ -16,6 +16,7 @@ const tabs: { id: AidType; label: string }[] = [
   { id: 'notes', label: 'Notes' },
   { id: 'summary', label: 'Summary' },
   { id: 'mnemonics', label: 'Mnemonics' },
+  { id: 'story', label: 'Story Mode' },
   { id: 'quiz', label: 'Quiz' },
 ];
 
@@ -209,6 +210,7 @@ const TopicModal: React.FC<TopicModalProps> = ({ mission, onClose, onMissionComp
             {!isLoading && !error && activeTab === 'notes' && studyAids.notes && <AidContent content={studyAids.notes} />}
             {!isLoading && !error && activeTab === 'summary' && studyAids.summary && <AidContent content={studyAids.summary} />}
             {!isLoading && !error && activeTab === 'mnemonics' && studyAids.mnemonics && <AidContent content={studyAids.mnemonics} />}
+            {!isLoading && !error && activeTab === 'story' && studyAids.story && <AidContent content={studyAids.story} />}
             {!isLoading && !error && activeTab === 'quiz' && studyAids.quiz && (
               mission.status === 'completed' ? 
               <div className="text-center text-green-400 font-bold text-xl">You have already completed this mission's quiz!</div> :

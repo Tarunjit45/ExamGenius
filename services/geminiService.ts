@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import type { SyllabusTopic, StudyPlan, QuizQuestion, Mission } from '../types';
+import type { SyllabusTopic, StudyPlan, QuizQuestion, Mission, AidType } from '../types';
 
 // Declaring pdfjsLib as it's loaded from a script tag in index.html
 declare const pdfjsLib: any;
@@ -187,7 +187,7 @@ export const createStudyPlan = async (topics: SyllabusTopic[], days: number, stu
     return planWithStatus;
 };
 
-export const generateStudyAid = async (topic: string, subject: string, aidType: 'notes' | 'summary' | 'mnemonics'): Promise<string> => {
+export const generateStudyAid = async (topic: string, subject: string, aidType: 'notes' | 'summary' | 'mnemonics' | 'story'): Promise<string> => {
     const ai = getGeminiAI();
     let modelName = 'gemini-flash-lite-latest';
     let prompt = ``;
@@ -201,6 +201,9 @@ export const generateStudyAid = async (topic: string, subject: string, aidType: 
         prompt = `Provide a short, one-paragraph summary of the key concepts for the topic "${topic}" in the subject "${subject}".`
     } else if (aidType === 'mnemonics') {
         prompt = `Create clever and memorable mnemonics for the key concepts in the topic "${topic}" under the subject "${subject}". Format the response using Markdown, with headings for different concepts and lists for the mnemonics themselves.`;
+    } else if (aidType === 'story') {
+        modelName = 'gemini-2.5-pro';
+        prompt = `I am studying the subject "${subject}". My current topic is "${topic}". Turn this topic into a game-like story - with characters, storylines, and challenges - so it feels like I'm leveling up instead of memorizing facts. Make it engaging and memorable. Use Markdown for formatting.`;
     }
 
     const result = await ai.models.generateContent({

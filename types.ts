@@ -40,8 +40,9 @@ export interface StudyAids {
   summary?: string;
   mnemonics?: string;
   quiz?: QuizQuestion[];
+  story?: string;
 }
 
 export type AppState = 'UPLOADING' | 'PLANNING' | 'STUDYING';
 
-export type AidType = 'notes' | 'summary' | 'mnemonics' | 'quiz';
+export type AidType = 'notes' | 'summary' | 'mnemonics' | 'quiz' | 'story';
