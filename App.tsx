@@ -4,22 +4,9 @@ import StudyDashboard from './components/StudyDashboard';
 import TopicModal from './components/TopicModal';
 import Loader from './components/Loader';
 import CameraCapture from './components/CameraCapture';
-import Header from './components/Header';
 import * as geminiService from './services/geminiService';
 import type { AppState, SyllabusTopic, StudyPlan, UserProfileData, Mission } from './types';
 import { XP_PER_MISSION, XP_FOR_LEVEL_UP, BADGES } from './constants';
-
-// To inform TypeScript about the global 'google' object from the script tag
-declare const google: any;
-
-const initialUserProfile: UserProfileData = {
-  level: 1,
-  xp: 0,
-  badges: [],
-  id: undefined,
-  name: undefined,
-  pictureUrl: undefined,
-};
 
 const LevelUpModal: React.FC<{ level: number, onClose: () => void }> = ({ level, onClose }) => {
     return (
@@ -104,150 +91,17 @@ const App: React.FC = () => {
 
   const [syllabusTopics, setSyllabusTopics] = useState<SyllabusTopic[]>([]);
   const [studyPlan, setStudyPlan] = useState<StudyPlan | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfileData>(initialUserProfile);
+  const [userProfile, setUserProfile] = useState<UserProfileData>({
+    level: 1,
+    xp: 0,
+    badges: [],
+  });
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
 
   const [showLevelUp, setShowLevelUp] = useState(false);
   const [leveledUpTo, setLeveledUpTo] = useState(0);
 
   const [showCamera, setShowCamera] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isGsiAvailable, setIsGsiAvailable] = useState(false);
-
-  const decodeJwt = (token: string) => {
-    try {
-        return JSON.parse(atob(token.split('.')[1]));
-    } catch (e) {
-        return null;
-    }
-  };
-
-  const handleSignOut = () => {
-    const userId = userProfile.id;
-    if (userId) {
-        localStorage.removeItem(`examGeniusSession_${userId}`);
-    }
-    
-    setIsLoggedIn(false);
-    setStudyPlan(null);
-    setUserProfile(initialUserProfile);
-    setSyllabusTopics([]);
-    setAppState('UPLOADING');
-    setError(null);
-
-    if (typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.disableAutoSelect();
-    }
-  };
-
-  const handleCredentialResponse = useCallback((response: any) => {
-    const decoded = decodeJwt(response.credential);
-    if (!decoded || !decoded.sub) {
-        setError("Google Sign-In failed. Please try again.");
-        return;
-    }
-    
-    const userId = decoded.sub;
-    const userName = decoded.name;
-    const userPicture = decoded.picture;
-
-    setIsLoggedIn(true);
-
-    try {
-        const savedSession = localStorage.getItem(`examGeniusSession_${userId}`);
-        if (savedSession) {
-            const { plan, profile } = JSON.parse(savedSession);
-            const profileWithIcons = {
-                ...profile,
-                id: userId,
-                name: userName,
-                pictureUrl: userPicture,
-                badges: (profile.badges || []).map((badge: any) => {
-                    if (badge.name.includes('Adept')) {
-                        const subject = badge.name.replace(' Adept', '');
-                        return BADGES.SUBJECT_MASTER(subject);
-                    }
-                    const badgeKey = Object.keys(BADGES).find(key => (BADGES[key as keyof typeof BADGES] as any).name === badge.name);
-                    return badgeKey ? BADGES[badgeKey as keyof typeof BADGES] : badge;
-                })
-            };
-            
-            if (plan && profile) {
-                setStudyPlan(plan);
-                setUserProfile(profileWithIcons);
-                setAppState('STUDYING');
-            }
-        } else {
-            setUserProfile({
-                ...initialUserProfile,
-                id: userId,
-                name: userName,
-                pictureUrl: userPicture,
-            });
-            setAppState('UPLOADING');
-        }
-    } catch (e) {
-        console.error("Failed to load or process session:", e);
-        setUserProfile({
-            ...initialUserProfile,
-            id: userId,
-            name: userName,
-            pictureUrl: userPicture,
-        });
-    }
-  }, []);
-
-  // Effect to initialize Google Sign-In button
-  useEffect(() => {
-    if (!isLoggedIn) {
-        const checkGoogle = setInterval(() => {
-            if (typeof google !== 'undefined' && google.accounts) {
-                clearInterval(checkGoogle);
-
-                const clientId = process.env.GOOGLE_CLIENT_ID;
-                const isClientIdValid = clientId && !clientId.startsWith('YOUR_GOOGLE_CLIENT_ID');
-
-                if (isClientIdValid) {
-                    setIsGsiAvailable(true);
-                    google.accounts.id.initialize({
-                        client_id: clientId,
-                        callback: handleCredentialResponse,
-                        use_fedcm_for_prompt: false
-                    });
-                    const signInButtonContainer = document.getElementById("signInButtonContainer");
-                    if (signInButtonContainer) {
-                        google.accounts.id.renderButton(
-                            signInButtonContainer,
-                            { theme: "outline", size: "large", type: "standard", text: "signin_with" }
-                        );
-                    }
-                    google.accounts.id.prompt(); // One-tap sign-in
-                } else {
-                    setIsGsiAvailable(false);
-                    console.warn("Google Client ID is not configured. Sign-in will be disabled.");
-                }
-            }
-        }, 100);
-        return () => clearInterval(checkGoogle);
-    }
-  }, [isLoggedIn, handleCredentialResponse]);
-
-
-  // Save session to localStorage whenever plan or profile changes for a logged-in user
-  useEffect(() => {
-    if (isLoggedIn && userProfile.id && studyPlan) {
-        try {
-            const profileToSave = {
-                ...userProfile,
-                badges: userProfile.badges.map(({ name, description }) => ({ name, description }))
-            };
-            const sessionData = JSON.stringify({ plan: studyPlan, profile: profileToSave });
-            localStorage.setItem(`examGeniusSession_${userProfile.id}`, sessionData);
-        } catch (e) {
-            console.error("Failed to save session:", e);
-        }
-    }
-  }, [studyPlan, userProfile, isLoggedIn]);
 
   const handleSyllabusSubmit = useCallback(async (file: File) => {
     setIsLoading(true);
@@ -301,6 +155,8 @@ const App: React.FC = () => {
         ...studyPlan,
         days: studyPlan.days.map(day => ({
             ...day,
+            // FIX: Add explicit return type to the map callback to prevent TypeScript
+            // from incorrectly widening the 'status' property to 'string'.
             missions: day.missions.map((mission): Mission => {
                 if (mission.id === missionId && mission.status === 'pending') {
                     missionTopic = mission.topic;
@@ -315,6 +171,7 @@ const App: React.FC = () => {
 
     setStudyPlan(updatedPlan);
 
+    // Update user profile
     setUserProfile(prev => {
         const newXp = prev.xp + XP_PER_MISSION;
         let newLevel = prev.level;
@@ -328,13 +185,13 @@ const App: React.FC = () => {
         }
 
         const newBadges = [...prev.badges];
-        const existingBadgeNames = new Set(newBadges.map(b => b.name));
-
-        if (prev.badges.length === 1 && !existingBadgeNames.has(BADGES.FIRST_MISSION.name)) {
+        if (prev.badges.length === 1) { // 1 because plan started badge is added
             newBadges.push(BADGES.FIRST_MISSION);
         }
-        if (quizScore === 4 && !existingBadgeNames.has(BADGES.PERFECT_QUIZ.name)) {
-            newBadges.push(BADGES.PERFECT_QUIZ);
+        if (quizScore === 4) { // Assuming 4 questions in quiz
+             if (!newBadges.some(b => b.name === BADGES.PERFECT_QUIZ.name)) {
+                newBadges.push(BADGES.PERFECT_QUIZ);
+             }
         }
         
         return {
@@ -350,60 +207,35 @@ const App: React.FC = () => {
     }
   }, [studyPlan]);
 
-  const renderContent = () => {
-    if (!isLoggedIn) {
-        return <SyllabusUploader onSyllabusSubmit={handleSyllabusSubmit} isLoading={isLoading} onOpenCamera={() => setShowCamera(true)} />;
-    }
-    switch (appState) {
-        case 'UPLOADING':
-            return <SyllabusUploader onSyllabusSubmit={handleSyllabusSubmit} isLoading={isLoading} onOpenCamera={() => setShowCamera(true)} />;
-        case 'PLANNING':
-            return <PlanningScreen handleCreatePlan={handleCreatePlan} />;
-        case 'STUDYING':
-            if(studyPlan) {
-                return <StudyDashboard plan={studyPlan} userProfile={userProfile} onMissionSelect={setSelectedMission} />;
-            }
-            // Fallback if plan is null for some reason
-            setAppState('UPLOADING');
-            return null;
-        default:
-            return <SyllabusUploader onSyllabusSubmit={handleSyllabusSubmit} isLoading={isLoading} onOpenCamera={() => setShowCamera(true)} />;
-    }
-  };
-
   return (
-    <div className="relative min-h-screen">
-      <Header 
-        isLoggedIn={isLoggedIn}
-        userProfile={userProfile}
-        onSignOut={handleSignOut}
-        isGsiAvailable={isGsiAvailable}
-      />
-      <main className="pt-20"> {/* Add padding to offset fixed header */}
-        {isLoading && <Loader message={loadingMessage} />}
-        {error && (
-          <div className="fixed top-24 right-5 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50">
-            <p>{error}</p>
-            <button onClick={() => { setError(null); setAppState('UPLOADING');}} className="font-bold mt-2">Try Again</button>
-          </div>
-        )}
-        {showLevelUp && <LevelUpModal level={leveledUpTo} onClose={() => setShowLevelUp(false)} />}
-        {showCamera && <CameraCapture onCapture={handleCapture} onCancel={() => setShowCamera(false)} />}
-        
-        {renderContent()}
-        
-        {selectedMission && (
-          <TopicModal 
-              mission={selectedMission} 
-              onClose={() => setSelectedMission(null)} 
-              onMissionComplete={handleMissionComplete}
-          />
-        )}
-      </main>
+    <>
+      {isLoading && <Loader message={loadingMessage} />}
+      {error && (
+        <div className="fixed top-5 right-5 bg-red-500 text-white p-4 rounded-lg shadow-lg z-50">
+          <p>{error}</p>
+          <button onClick={() => { setError(null); setAppState('UPLOADING');}} className="font-bold mt-2">Try Again</button>
+        </div>
+      )}
+      {showLevelUp && <LevelUpModal level={leveledUpTo} onClose={() => setShowLevelUp(false)} />}
+      {showCamera && <CameraCapture onCapture={handleCapture} onCancel={() => setShowCamera(false)} />}
+      
+      {appState === 'UPLOADING' && <SyllabusUploader onSyllabusSubmit={handleSyllabusSubmit} isLoading={isLoading} onOpenCamera={() => setShowCamera(true)} />}
+      {appState === 'PLANNING' && <PlanningScreen handleCreatePlan={handleCreatePlan} />}
+      {appState === 'STUDYING' && studyPlan && (
+        <StudyDashboard plan={studyPlan} userProfile={userProfile} onMissionSelect={setSelectedMission} />
+      )}
+      
+      {selectedMission && (
+        <TopicModal 
+            mission={selectedMission} 
+            onClose={() => setSelectedMission(null)} 
+            onMissionComplete={handleMissionComplete}
+        />
+      )}
       <footer className="text-center p-4 text-xs text-slate-500">
         © {new Date().getFullYear()} Tarunjit Biswas. All rights reserved.
       </footer>
-    </div>
+    </>
   );
 };
 

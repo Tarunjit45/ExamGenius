@@ -22,9 +22,6 @@ export interface StudyPlan {
 }
 
 export interface UserProfileData {
-  id?: string; // Google User ID
-  name?: string;
-  pictureUrl?: string;
   level: number;
   xp: number;
   // FIX: Use React.ReactElement for better type safety and to avoid global JSX namespace issues.
