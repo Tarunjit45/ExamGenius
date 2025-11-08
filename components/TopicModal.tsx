@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Mission, StudyAids, AidType, QuizQuestion } from '../types';
 import * as geminiService from '../services/geminiService';
+import { XP_PER_MISSION } from '../constants';
 
 // Declaring marked as it's loaded from a script tag in index.html
 declare const marked: any;
@@ -22,7 +23,7 @@ const AidContent: React.FC<{ content: string }> = ({ content }) => {
   const htmlContent = marked.parse(content || '');
   return (
     <div
-      className="prose prose-invert max-w-none prose-p:text-slate-300 prose-headings:text-slate-100 prose-strong:text-purple-400 prose-ul:list-disc prose-ol:list-decimal"
+      className="prose prose-sm sm:prose-base prose-invert max-w-none prose-p:text-slate-300 prose-headings:text-slate-100 prose-strong:text-purple-400 prose-ul:list-disc prose-ol:list-decimal"
       dangerouslySetInnerHTML={{ __html: htmlContent }}
     />
   );
@@ -113,8 +114,6 @@ const QuizComponent: React.FC<{ quiz: QuizQuestion[]; onQuizComplete: (score: nu
     );
 };
 
-import { XP_PER_MISSION } from '../constants';
-
 const TopicModal: React.FC<TopicModalProps> = ({ mission, onClose, onMissionComplete }) => {
   const [activeTab, setActiveTab] = useState<AidType>('notes');
   const [studyAids, setStudyAids] = useState<StudyAids>({});
@@ -152,7 +151,7 @@ const TopicModal: React.FC<TopicModalProps> = ({ mission, onClose, onMissionComp
   };
   
   return (
-    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-40 flex justify-center items-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-40 flex justify-center items-center p-0 md:p-4" onClick={onClose}>
         <style>{`
             .confetti-piece {
                 position: absolute;
@@ -166,12 +165,19 @@ const TopicModal: React.FC<TopicModalProps> = ({ mission, onClose, onMissionComp
                 0% { transform: translateY(0) rotateZ(0); opacity: 1; }
                 100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
             }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
         `}</style>
-      <div className="relative w-full max-w-4xl h-[90vh] bg-slate-800 rounded-2xl shadow-2xl flex flex-col overflow-hidden glow-card" onClick={e => e.stopPropagation()}>
-        <header className="p-6 border-b border-slate-700/50 flex justify-between items-start">
+      <div className="relative w-full max-w-4xl h-full md:h-[90vh] bg-slate-800 rounded-none md:rounded-2xl shadow-2xl flex flex-col overflow-hidden glow-card" onClick={e => e.stopPropagation()}>
+        <header className="p-4 md:p-6 border-b border-slate-700/50 flex justify-between items-start">
           <div>
             <p className="text-purple-400 font-semibold">{mission.subject}</p>
-            <h2 className="text-3xl font-bold text-slate-100">{mission.topic}</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-slate-100">{mission.topic}</h2>
           </div>
           <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-700">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -180,14 +186,14 @@ const TopicModal: React.FC<TopicModalProps> = ({ mission, onClose, onMissionComp
           </button>
         </header>
 
-        <div className="flex flex-1 overflow-hidden">
-          <nav className="w-48 border-r border-slate-700/50 p-4">
-            <ul className="space-y-2">
+        <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+          <nav className="flex-shrink-0 md:w-48 border-b md:border-b-0 md:border-r border-slate-700/50 p-2 md:p-4">
+            <ul className="flex flex-row md:flex-col gap-1 md:space-y-2 overflow-x-auto scrollbar-hide">
               {tabs.map(tab => (
-                <li key={tab.id}>
+                <li key={tab.id} className="flex-shrink-0">
                   <button
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full text-left px-4 py-2 rounded-md font-semibold transition-colors text-lg ${activeTab === tab.id ? 'bg-purple-600 text-white' : 'text-slate-300 hover:bg-slate-700'}`}
+                    className={`w-full text-left px-4 py-2 rounded-md font-semibold transition-colors text-base md:text-lg whitespace-nowrap ${activeTab === tab.id ? 'bg-purple-600 text-white' : 'text-slate-300 hover:bg-slate-700'}`}
                   >
                     {tab.label}
                   </button>
@@ -196,7 +202,7 @@ const TopicModal: React.FC<TopicModalProps> = ({ mission, onClose, onMissionComp
             </ul>
           </nav>
 
-          <main className="flex-1 p-8 overflow-y-auto">
+          <main className="flex-1 p-4 md:p-8 overflow-y-auto">
             {isLoading && <div className="text-center text-slate-400">Generating...</div>}
             {error && <div className="text-center text-red-400">{error}</div>}
             

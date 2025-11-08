@@ -57,10 +57,10 @@ const SyllabusUploader: React.FC<SyllabusUploaderProps> = ({ onSyllabusSubmit, i
   return (
     <div className="min-h-screen w-full flex flex-col justify-center items-center p-4">
       <div className="text-center">
-        <h1 className="text-6xl md:text-8xl font-bold glow-text">
+        <h1 className="text-5xl sm:text-6xl md:text-8xl font-bold glow-text">
           🚀 Welcome to ExamGenius
         </h1>
-        <p className="mt-4 text-xl text-slate-300 max-w-2xl">
+        <p className="mt-4 text-lg md:text-xl text-slate-300 max-w-2xl">
           Study Less, Play Smart.
         </p>
       </div>

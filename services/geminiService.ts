@@ -4,6 +4,23 @@ import type { SyllabusTopic, StudyPlan, QuizQuestion, Mission } from '../types';
 // Declaring pdfjsLib as it's loaded from a script tag in index.html
 declare const pdfjsLib: any;
 
+/**
+ * Robustly parses a JSON string from a Gemini API response.
+ * It handles cases where the JSON is wrapped in markdown code fences (```json ... ```).
+ * @param jsonString The raw string response from the API.
+ * @returns The parsed JSON object.
+ */
+const parseJsonFromResponse = (jsonString: string): any => {
+    // Clean the string: remove markdown fences and trim whitespace
+    const cleanedString = jsonString.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+    try {
+        return JSON.parse(cleanedString);
+    } catch (error) {
+        console.error("Failed to parse JSON response:", cleanedString);
+        throw new Error("The AI returned an invalid format. Please try again.");
+    }
+};
+
 const fileToGenerativePart = async (file: File) => {
   const base64EncodedDataPromise = new Promise<string>((resolve) => {
     const reader = new FileReader();
@@ -56,7 +73,7 @@ export const extractTopicsFromSyllabus = async (file: File): Promise<SyllabusTop
     modelContents = {
       parts: [
         filePart,
-        { text: "Analyze this image of a syllabus. Extract all subjects and their corresponding topics. Respond in a valid JSON format." }
+        { text: "Analyze this image of a syllabus. Extract all subjects and their corresponding topics. Respond in a valid JSON format that adheres to the provided schema." }
       ]
     };
   } else if (file.type === 'application/pdf') {
@@ -66,7 +83,7 @@ export const extractTopicsFromSyllabus = async (file: File): Promise<SyllabusTop
     }
     modelContents = {
       parts: [
-        { text: `Here is the text extracted from a syllabus PDF:\n\n---\n${pdfText}\n---\n\nAnalyze this text. Extract all subjects and their corresponding topics. Respond in a valid JSON format.` }
+        { text: `Here is the text extracted from a syllabus PDF:\n\n---\n${pdfText}\n---\n\nAnalyze this text. Extract all subjects and their corresponding topics. Respond in a valid JSON format that adheres to the provided schema.` }
       ]
     };
   } else {
@@ -95,8 +112,7 @@ export const extractTopicsFromSyllabus = async (file: File): Promise<SyllabusTop
       }
   });
 
-  const jsonString = result.text;
-  return JSON.parse(jsonString) as SyllabusTopic[];
+  return parseJsonFromResponse(result.text) as SyllabusTopic[];
 };
 
 export const createStudyPlan = async (topics: SyllabusTopic[], days: number, studySpeed: 'Chill' | 'Normal' | 'Speedrun'): Promise<StudyPlan> => {
@@ -156,7 +172,7 @@ export const createStudyPlan = async (topics: SyllabusTopic[], days: number, stu
         }
     });
 
-    const parsedPlan = JSON.parse(result.text);
+    const parsedPlan = parseJsonFromResponse(result.text);
     // Add status and id to missions
     const planWithStatus: StudyPlan = {
         days: parsedPlan.days.map((day: any) => ({
@@ -197,7 +213,7 @@ export const generateStudyAid = async (topic: string, subject: string, aidType: 
 
 export const generateQuiz = async (topic: string, subject:string): Promise<QuizQuestion[]> => {
     const ai = getGeminiAI();
-    const prompt = `Create a quiz with 4 multiple-choice questions for the topic "${topic}" in the subject "${subject}". Each question must have exactly 4 options. Ensure one option is clearly the correct answer. The goal is to test a student's understanding. Respond in a valid JSON format.`;
+    const prompt = `Create a quiz with 4 multiple-choice questions for the topic "${topic}" in the subject "${subject}". Each question must have exactly 4 options. Ensure one option is clearly the correct answer. The goal is to test a student's understanding. Respond in a valid JSON format that adheres to the provided schema.`;
     const result = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt,
@@ -223,8 +239,7 @@ export const generateQuiz = async (topic: string, subject:string): Promise<QuizQ
         }
     });
 
-    const jsonString = result.text;
-    const quizData = JSON.parse(jsonString) as QuizQuestion[];
+    const quizData = parseJsonFromResponse(result.text) as QuizQuestion[];
 
     // Basic validation
     if (!quizData || !Array.isArray(quizData) || quizData.some(q => q.options.length !== 4)) {

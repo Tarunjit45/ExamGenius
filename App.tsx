@@ -10,10 +10,10 @@ import { XP_PER_MISSION, XP_FOR_LEVEL_UP, BADGES } from './constants';
 
 const LevelUpModal: React.FC<{ level: number, onClose: () => void }> = ({ level, onClose }) => {
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-50 flex justify-center items-center" onClick={onClose}>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-lg z-50 flex justify-center items-center p-4" onClick={onClose}>
             <div className="text-center transform transition-all animate-pop-in">
-                <p className="text-4xl font-bold text-yellow-300">LEVEL UP!</p>
-                <p className="text-9xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500 glow-text">{level}</p>
+                <p className="text-3xl md:text-4xl font-bold text-yellow-300">LEVEL UP!</p>
+                <p className="text-8xl md:text-9xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500 glow-text">{level}</p>
                 <p className="mt-4 text-slate-300">New abilities unlocked!</p>
                 <button onClick={onClose} className="mt-6 px-6 py-2 bg-purple-600 rounded-lg font-semibold hover:bg-purple-700">Continue Quest</button>
             </div>
@@ -41,7 +41,7 @@ const PlanningScreen: React.FC<PlanningScreenProps> = ({ handleCreatePlan }) => 
     return (
         <div className="min-h-screen w-full flex flex-col justify-center items-center p-4">
             <div className="text-center">
-                <h2 className="text-5xl font-bold glow-text">Analysis Complete!</h2>
+                <h2 className="text-4xl md:text-5xl font-bold glow-text">Analysis Complete!</h2>
                 <p className="mt-2 text-slate-300 text-lg">Your syllabus is decoded. Let's configure your quest.</p>
             </div>
             <form onSubmit={(e) => {

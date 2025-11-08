@@ -87,17 +87,17 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.4.168/build/pdf.min.mjs" type="module"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 </head>
-<body class="text-slate-100">
-    <div id="starfield"></div>
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-    <script>
-      // Starfield generation
-      const starfield = document.getElementById('starfield');
-      for (let i = 0; i < 150; i++) {
+<body class="text-slate-300">
+  <div id="starfield"></div>
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+  <script>
+    // Starfield script
+    const starfield = document.getElementById('starfield');
+    for (let i = 0; i < 200; i++) {
         const star = document.createElement('div');
         star.className = 'star';
-        const size = Math.random() * 2 + 1;
+        const size = Math.random() * 3;
         star.style.width = `${size}px`;
         star.style.height = `${size}px`;
         star.style.top = `${Math.random() * 100}%`;
@@ -105,7 +105,7 @@
         star.style.animationDuration = `${Math.random() * 3 + 2}s`;
         star.style.animationDelay = `${Math.random() * 3}s`;
         starfield.appendChild(star);
-      }
-    </script>
+    }
+  </script>
 </body>
 </html>
