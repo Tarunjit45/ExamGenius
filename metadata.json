@@ -1,0 +1,7 @@
+{
+  "name": "ExamGenius",
+  "description": "A gamified AI study planner that transforms your syllabus into an interactive study adventure. Upload your syllabus, get a personalized plan, and conquer your exams with AI-generated notes, quizzes, and more.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
