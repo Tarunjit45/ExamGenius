@@ -1,72 +1,101 @@
-# 🚀 ExamGenius
+# 🎯 ExamGenius — Gamified AI Study Planner & Syllabus Adventure
 
-![Language](https://img.shields.io/badge/Language-TypeScript-blue?style=for-the-badge)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
-![Status](https://img.shields.io/badge/Production-Active-success?style=for-the-badge)
+[![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org/)
+[![Google Gemini](https://img.shields.io/badge/AI-Gemini%20Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev/)
+[![Vite](https://img.shields.io/badge/Bundler-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
-## 📌 Overview
+**ExamGenius** is a gamified AI study companion that transforms dry exam syllabi into an interactive RPG-style study adventure. Powered by Google's Gemini API (`@google/genai`), ExamGenius parses curriculum documents or camera-scanned syllabi, breaks them down into mastery quests, and generates adaptive study notes, interactive quizzes, and countdown trackers.
 
-A gamified AI study planner that transforms your syllabus into an interactive study adventure. Upload your syllabus, get a personalized plan, and conquer your exams with AI-generated notes, quizzes, and more.
+---
 
-## ✨ Key Features & Architecture
+## ✨ Key Features
 
-- **High-Performance Codebase:** Built using `TypeScript` and modern engineering principles.
-- **Modular & Scalable Design:** Structured directory tree for seamless development and deployment.
-- **Modern Responsive Styling:** Custom UI design system engineered for mobile & desktop clarity.
+* 🗺️ **Syllabus-to-Quest Conversion:** Upload or camera-scan your syllabus. ExamGenius breaks heavy textbooks and courses into manageable quest milestones.
+* 🤖 **AI-Generated Study Notes:** Generates concise, high-yield summary cheat sheets, memory mnemonics, and conceptual breakdowns on demand.
+* ⚔️ **Interactive Knowledge Battles:** Turn revisions into gamified quiz challenges with real-time scoring, streaks, and explanations for incorrect answers.
+* 📸 **Camera OCR Ingestion:** Integrated camera permission capture allowing students to snap photos of physical exam routines or textbooks.
+* 🏆 **XP & Progression Tracking:** Visual level-ups, mastery badges, and study streaks that defeat procrastination and maintain momentum.
 
-## 🛠️ Tech Stack & Dependencies
+---
 
-- **Core Language:** `TypeScript`
-- **Libraries & Tools:** React 18, Vite, Tailwind CSS, TypeScript
-- **Deployment Infrastructure:** Vercel Edge / Cloud Services
+## 🛠️ Architecture & Tech Stack
 
-## 📁 Architecture & File Layout
+```
++-------------------------------------------------------------+
+|                      ExamGenius Frontend                    |
+|             (React 18 + TypeScript + Vite + Tailwind)       |
++-------------------------------------------------------------+
+         | (Syllabus Input / OCR)             ^ (Quests & Quizzes)
+         v                                    |
++-------------------------------------------------------------+
+|                   Gemini AI Service Layer                   |
+|                   `services/geminiService.ts`               |
+|            (@google/genai SDK — Gemini 2.5 Flash)           |
++-------------------------------------------------------------+
+         |                                    ^
+         v                                    |
++-------------------------------------------------------------+
+|                Gamification Engine & State                  |
+|          XP, Mastery Levels, Quests & Quizzes Schema        |
++-------------------------------------------------------------+
+```
+
+* **Frontend:** React 18, TypeScript, Tailwind CSS, Lucide Icons.
+* **AI Engine:** Google Gemini API (`@google/genai`).
+* **Tooling:** Vite, ESLint, PostCSS.
+
+---
+
+## 📁 Repository Structure
 
 ```text
 ExamGenius/
-├── .github
-├── .github/ISSUE_TEMPLATE
-├── .github/ISSUE_TEMPLATE/bug_report.md
-├── .github/ISSUE_TEMPLATE/feature_request.md
-├── .github/PULL_REQUEST_TEMPLATE.md
-├── .github/workflows
-├── .github/workflows/ci.yml
-├── .gitignore
-├── App.tsx
-├── CODE_OF_CONDUCT.md
-├── CONTRIBUTING.md
-├── LICENSE
-├── README.md
-├── components
-├── components/CameraCapture.tsx
-└── ... [additional codebase files]
+├── App.tsx             # Main dashboard, quest log & study room view
+├── index.tsx           # React DOM bootstrap
+├── index.html          # HTML5 entry with meta viewport & font imports
+├── components/         # Gamified UI components (Quests, Quizzes, Notes, XP Bar)
+├── services/           # Gemini API client & prompt engineering services
+├── constants.tsx       # Pre-configured syllabus templates & quest types
+├── metadata.json       # Project manifest & capability declarations
+├── tsconfig.json       # TypeScript compiler options
+├── package.json        # Dependencies & scripts
+├── LICENSE             # MIT License
+└── README.md
 ```
 
-## 🚀 Quickstart & Installation
+---
 
-### Prerequisites
-- Node.js (v18.0.0 or higher)
-- npm or yarn package manager
+## 🚀 Quick Start
 
-### Setup Instructions
+### 1. Prerequisites
+* Node.js 18 or higher
+* A [Google Gemini API Key](https://aistudio.google.com/)
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/Tarunjit45/ExamGenius.git
-   cd ExamGenius
-   ```
+### 2. Installation
+```bash
+git clone https://github.com/Tarunjit45/ExamGenius.git
+cd ExamGenius
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+npm install
+```
 
-3. **Launch development server:**
-   ```bash
-   npm run dev
-   ```
+### 3. Environment Configuration
+Create a `.env` file in the root directory:
 
-## 📜 Author & License
+```env
+VITE_GEMINI_API_KEY=your_gemini_api_key_here
+```
 
-Architected & Developed by **[Tarunjit Biswas](https://github.com/Tarunjit45)**.  
-Distributed under the **MIT License**.
+### 4. Run Development Server
+```bash
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+---
+
+## 📄 License
+This project is licensed under the [MIT License](LICENSE).
